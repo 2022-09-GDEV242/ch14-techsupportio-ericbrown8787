@@ -83,26 +83,24 @@ public class Responder
             String value = "";
             while(line != null) {
 
-                    workingLine = line.trim();
-                    line = reader.readLine();
-                    if (firstLine){
-                        if (workingLine.length() > 0){
+                workingLine = line.trim();
+                line = reader.readLine();
+                if (firstLine){
+                    if (workingLine.length() > 0){
                         keys = new ArrayList<String>(Arrays.asList(workingLine.split(",")));
-                        System.out.println(keys);
                         firstLine = false;}
+                }
+                else if (workingLine.equals(entrySeparator) || line == null){                    
+                    value += "\n";
+                    for(String key : keys){
+                        responseMap.put(key,value);
                     }
-                    else if (workingLine.equals(entrySeparator) || line == null){                    
-                        value += "\n";
-                        for(String key : keys){
-                            responseMap.put(key,value);
-                            System.out.println(responseMap.get(key));
-                        }
-                        value = "";
-                        firstLine = true;
-                    }
-                    else{  
-                        value += "\n" + workingLine;    
-                    }
+                    value = "";
+                    firstLine = true;
+                }
+                else{  
+                    value += "\n" + workingLine;    
+                }
 
             } 
         }
@@ -124,19 +122,24 @@ public class Responder
         Charset charset = Charset.forName("US-ASCII");
         Path path = Paths.get(FILE_OF_DEFAULT_RESPONSES);
         try (BufferedReader reader = Files.newBufferedReader(path, charset)) {
-            String responseLine = reader.readLine();
+            String line = reader.readLine();
+            String workingLine = "";
             String response = "";
-            String separator = "";
-            while(responseLine != null) {
-                if (responseLine.equals(separator) && !response.equals("")){    
-                    defaultResponses.add(response);
-                    response = "";
+            String entrySeparator = "";
+            while(line != null) {
+                workingLine = line.trim();
+                if (line.equals(entrySeparator) && !response.equals("")){
+                    if (response.trim().length() > 0){
+                        defaultResponses.add(response);
+                        response = "";
+                    }
                 }
                 else{
-                    response += "\n" + responseLine + "\n";
+                    if (workingLine.length() > 0){
+                        response += "\n" + workingLine;
+                    }
                 }
-                responseLine = reader.readLine();
-
+                line = reader.readLine();
             }
         }
         catch(FileNotFoundException e) {
